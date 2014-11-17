@@ -148,7 +148,7 @@ public class CoffeeScriptMojo extends AbstractMojo {
       CoffeeExecuteThread thread = new CoffeeExecuteThread(coffeeScriptCompiler, restartInterval);
       CoffeeExecuteListener listen = new CoffeeExecuteListener(thread);
       thread.addObserver(listen);
-      thread.run();
+      new Thread(thread).start();
     } else {
       coffeeScriptCompiler.execute();
     }
