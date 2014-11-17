@@ -26,7 +26,7 @@ public class CoffeeScriptMojo extends AbstractMojo {
   protected BuildContext buildContext;
 
   /**
-   * The source directory containing the LESS sources.
+   * The source directory containing the coffee sources.
    */
   @Parameter(defaultValue = "${project.basedir}/src/main/coffeescript")
   protected File sourceDirectory;
@@ -57,37 +57,37 @@ public class CoffeeScriptMojo extends AbstractMojo {
   protected File outputDirectory;
 
   /**
-   * When <code>true</code> the COFFEE compiler will compress the javascript.
+   * When <code>true</code> the coffee compiler will compress the javascript.
    */
   @Parameter(defaultValue = "false")
   private boolean compress;
 
   /**
-   * When <code>true</code> the plugin will watch for changes in COFFEE files and compile if it detects one.
+   * When <code>true</code> the plugin will watch for changes in coffee files and compile if it detects one.
    */
   @Parameter(defaultValue = "false")
   protected boolean watch;
 
   /**
-   * When <code>true</code> the plugin will watch for changes in COFFEE files and compile if it detects one.
+   * When <code>true</code> the plugin will watch for changes in coffee files and compile if it detects one.
    */
   @Parameter(defaultValue = "1000")
   private int watchInterval;
 
   /**
-   * The character encoding the COFFEE compiler will use for writing the javascript.
+   * The character encoding the coffee compiler will use for writing the javascript.
    */
   @Parameter(defaultValue = "${project.build.sourceEncoding}")
   private String encoding;
 
   /**
-   * When <code>true</code> forces the COFFEE compiler to always compile the COFFEE sources. By default COFFEE sources are only compiled when modified (including imports) or the CSS stylesheet does not exists.
+   * When <code>true</code> forces the coffee compiler to always compile the coffee sources. By default coffee sources are only compiled when modified (including imports) or the CSS stylesheet does not exists.
    */
   @Parameter(defaultValue = "false")
   private boolean force;
 
   /**
-   * The location of the COFFEE JavasSript file.
+   * The location of the coffee JavasSript file.
    */
   @Parameter
   private File coffeeJs;

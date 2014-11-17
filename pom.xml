@@ -7,7 +7,7 @@
   <version>1.0</version>
   <name>Coffee Script Maven Plugin</name>
   <description>Coffee Script Maven Plugin</description>
-  <url>http://github.com/Dreampie/coffeescript-maven-plugin</url>
+  <url>http://github.com/Dreampie/${project.name}</url>
 
   <licenses>
     <license>
@@ -34,16 +34,19 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:Dreampie/coffeescript-maven-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:Dreampie/coffeescript-maven-plugin.git</developerConnection>
-    <url>git@github.com:Dreampie/coffeescript-maven-plugin.git</url>
+    <connection>scm:git:git@github.com:Dreampie/${project.name}.git</connection>
+    <developerConnection>scm:git:git@github.com:Dreampie/${project.name}.git</developerConnection>
+    <url>git@github.com:Dreampie/${project.name}.git</url>
   </scm>
 
-
   <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
     <repository>
-      <id>shmrh</id>
-      <url>http://192.168.1.211:28000/nexus/content/repositories/thirdparty</url>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
     </repository>
   </distributionManagement>
 
