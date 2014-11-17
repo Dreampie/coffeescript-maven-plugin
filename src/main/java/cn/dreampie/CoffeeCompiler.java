@@ -116,7 +116,6 @@ public class CoffeeCompiler {
   private void init() throws IOException {
     InputStream inputStream = null;
     if (coffeeJs == null) {
-      log.info("coffee-script file not found");
       inputStream = this.getClass().getResourceAsStream("/lib/coffee-script-1.7.1.min.js");
     } else
       inputStream = coffeeJs.openConnection().getInputStream();
@@ -236,7 +235,7 @@ public class CoffeeCompiler {
    * @throws java.io.IOException If the COFFEE file cannot be read or the output file cannot be written.
    */
   public void compile(CoffeeSource input, File output, boolean force) throws IOException, CoffeeException {
-    if (force || (!output.exists() && output.createNewFile()) || output.lastModified() < input.getLastModifiedIncludingImports()) {
+    if (force || (!output.exists() && output.createNewFile()) || output.lastModified() < input.getLastModified()) {
       String data = compile(input);
       FileUtils.writeStringToFile(output, data, encoding);
     }
@@ -278,9 +277,10 @@ public class CoffeeCompiler {
 
   private List<Option> readOptionsFrom(String... args) {
     optionArgs = new LinkedList<Option>();
-
-    if (args.length == 1 && args[0].equals("--bare")) {
-      optionArgs.add(Option.BARE);
+    if (args != null) {
+      if (args.length == 1 && args[0].equals("--bare")) {
+        optionArgs.add(Option.BARE);
+      }
     }
     return optionArgs;
   }

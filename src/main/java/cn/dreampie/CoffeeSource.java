@@ -23,15 +23,9 @@ public class CoffeeSource {
 
   private Log log = LogKit.getLog();
 
-  /**
-   * The <code>Pattern</code> used to match imported files.
-   */
-  private static final Pattern IMPORT_PATTERN = Pattern.compile("^(?!\\s*//\\s*).*(@import\\s+(url\\(|\\((less|css)\\))?\\s*(\"|')(.+)\\s*(\"|')(\\))?(.*);).*$", MULTILINE);
-
   private Resource resource;
   private String content;
   private String normalizedContent;
-  private Map<String, CoffeeSource> imports = new LinkedHashMap<String, CoffeeSource>();
 
   /**
    * Constructs a new <code>CoffeeSource</code>.
@@ -87,10 +81,10 @@ public class CoffeeSource {
     BOMInputStream inputStream = new BOMInputStream(resource.getInputStream());
     try {
       if (inputStream.hasBOM()) {
-        log.debug("BOM found " + inputStream.getBOMCharsetName());
+        log.debug("BOM found " + resource.getName() + ":" + inputStream.getBOMCharsetName());
         return IOUtils.toString(inputStream, inputStream.getBOMCharsetName());
       } else {
-        log.debug("Using charset " + charset.name());
+        log.debug("Using charset " + resource.getName() + ":" + charset.name());
         return IOUtils.toString(inputStream, charset.name());
       }
     } finally {
@@ -137,37 +131,6 @@ public class CoffeeSource {
    */
   public long getLastModified() {
     return resource.lastModified();
-  }
-
-  /**
-   * Returns the time that the LESS source, or one of its imports, was last modified.
-   *
-   * @return A <code>long</code> value representing the time the resource was last modified, measured in milliseconds since the epoch (00:00:00 GMT, January 1, 1970).
-   */
-  public long getLastModifiedIncludingImports() {
-    long lastModified = getLastModified();
-    for (Map.Entry<String, CoffeeSource> entry : imports.entrySet()) {
-      CoffeeSource importedCoffeeSource = entry.getValue();
-      long importedCoffeeSourceLastModified = importedCoffeeSource.getLastModifiedIncludingImports();
-      if (importedCoffeeSourceLastModified > lastModified) {
-        lastModified = importedCoffeeSourceLastModified;
-      }
-    }
-    return lastModified;
-  }
-
-  /**
-   * Returns the LESS sources imported by this LESS source.
-   * <p>
-   * The returned imports are represented by a
-   * <code>Map&lt;String, CoffeeSource&gt;</code> which contains the filename and the
-   * <code>CoffeeSource</code>.
-   * </p>
-   *
-   * @return The LESS sources imported by this LESS source.
-   */
-  public Map<String, CoffeeSource> getImports() {
-    return imports;
   }
 
   public String getName() {

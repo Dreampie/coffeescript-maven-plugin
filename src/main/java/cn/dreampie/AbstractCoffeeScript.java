@@ -16,7 +16,7 @@ public abstract class AbstractCoffeeScript {
   protected BuildContext buildContext;
 
   /**
-   * The source directory containing the COFFEE sources.
+   * The source directory containing the coffee sources.
    * required
    */
   protected File sourceDirectory;
@@ -32,7 +32,7 @@ public abstract class AbstractCoffeeScript {
   protected String[] excludes = new String[]{};
 
   /**
-   * Scans for the COFFEE sources that should be compiled.
+   * Scans for the coffee sources that should be compiled.
    */
   protected String[] getIncludedFiles() {
     Scanner scanner = buildContext.newScanner(sourceDirectory, true);

@@ -41,7 +41,7 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
   private String encoding;
 
   /**
-   * When <code>true</code> forces the COFFEE compiler to always compile the COFFEE sources. By default COFFEE sources are only compiled when modified (including imports) or the CSS stylesheet does not exists.
+   * When <code>true</code> forces the COFFEE compiler to always compile the coffeescript sources. By default coffeescript sources are only compiled when modified (including imports) or the CSS stylesheet does not exists.
    */
   private boolean force;
 
@@ -72,15 +72,13 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
    * @throws cn.dreampie.CoffeeException if something unexpected occurs.
    */
   public void execute() throws CoffeeException {
-    if (log.isDebugEnabled()) {
-      log.debug("sourceDirectory = " + sourceDirectory);
-      log.debug("outputDirectory = " + outputDirectory);
-      log.debug("includes = " + Arrays.toString(includes));
-      log.debug("excludes = " + Arrays.toString(excludes));
-      log.debug("force = " + force);
-      log.debug("coffeeJs = " + coffeeJs);
-      log.debug("skip = " + skip);
-    }
+    log.info("sourceDirectory = " + sourceDirectory);
+    log.info("outputDirectory = " + outputDirectory);
+    log.debug("includes = " + Arrays.toString(includes));
+    log.debug("excludes = " + Arrays.toString(excludes));
+    log.debug("force = " + force);
+    log.debug("coffeeJs = " + coffeeJs);
+    log.debug("skip = " + skip);
 
     if (!skip) {
       if (watch) {
@@ -110,7 +108,7 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
     String[] files = getIncludedFiles();
 
     if (files == null || files.length < 1) {
-      log.info("Nothing to compile - no COFFEE sources found");
+      log.info("Nothing to compile - no coffee sources found");
     } else {
       if (log.isDebugEnabled()) {
         log.debug("included files = " + Arrays.toString(files));
@@ -140,29 +138,29 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
 
       try {
         CoffeeSource coffeeSource = new CoffeeSource(input);
-        long coffeeLastModified = coffeeSource.getLastModifiedIncludingImports();
+        long coffeeLastModified = coffeeSource.getLastModified();
         if (!output.exists() || (force || output.lastModified() < coffeeLastModified) && lastErrorModified < coffeeLastModified) {
           lastErrorModified = coffeeLastModified;
           long compilationStarted = System.currentTimeMillis();
-          log.info("Compiling COFFEE source: " + file);
+          log.info("Compiling coffee source: " + file);
           if (coffeeCompiler instanceof CoffeeCompiler) {
             ((CoffeeCompiler) coffeeCompiler).compile(coffeeSource, output, force);
           }
           buildContext.refresh(output);
           log.info("Finished compilation to " + outputDirectory + " in " + (System.currentTimeMillis() - compilationStarted) + " ms");
         } else if (!watch) {
-          log.info("Bypassing COFFEE source: " + file + " (not modified)");
+          log.info("Bypassing coffee source: " + file + " (not modified)");
         }
       } catch (IOException e) {
-//                buildContext.addMessage(input, 0, 0, "Error compiling COFFEE source", BuildContext.SEVERITY_ERROR, e);
-        throw new CoffeeException("Error while compiling COFFEE source: " + file, e);
+//                buildContext.addMessage(input, 0, 0, "Error compiling coffee source", BuildContext.SEVERITY_ERROR, e);
+        throw new CoffeeException("Error while compiling coffee source: " + file, e);
       } catch (CoffeeException e) {
         String message = e.getMessage();
         if (StringUtils.isEmpty(message)) {
-          message = "Error compiling COFFEE source";
+          message = "Error compiling coffee source";
         }
-//                buildContext.addMessage(input, 0, 0, "Error compiling COFFEE source", BuildContext.SEVERITY_ERROR, e);
-        throw new CoffeeException("Error while compiling COFFEE source: " + file, e);
+//                buildContext.addMessage(input, 0, 0, "Error compiling coffee source", BuildContext.SEVERITY_ERROR, e);
+        throw new CoffeeException("Error while compiling coffee source: " + file, e);
       }
     }
 
@@ -178,7 +176,7 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
         try {
           newCoffeeCompiler.setCoffeeJs(coffeeJs.toURI().toURL());
         } catch (MalformedURLException e) {
-          throw new CoffeeException("Error while loading COFFEE JavaScript: " + coffeeJs.getAbsolutePath(), e);
+          throw new CoffeeException("Error while loading coffeescript: " + coffeeJs.getAbsolutePath(), e);
         }
       }
       coffeeCompiler = newCoffeeCompiler;

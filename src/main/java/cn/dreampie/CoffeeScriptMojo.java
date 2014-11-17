@@ -27,25 +27,18 @@ public class CoffeeScriptMojo extends AbstractMojo {
 
   /**
    * The source directory containing the LESS sources.
-   * <p/>
-   * parameter default-value="${project.basedir}/src/main/lesscss"
-   * required
    */
-  @Parameter(defaultValue = "${project.basedir}/src/main/lesscss")
+  @Parameter(defaultValue = "${project.basedir}/src/main/coffeescript")
   protected File sourceDirectory;
 
   /**
-   * List of files to include. Specified as fileset patterns which are relative to the source directory. Default value is: { "**\/*.less" }
-   * <p/>
-   * parameter
+   * List of files to include. Specified as fileset patterns which are relative to the source directory. Default value is: { "**\/*.coffee" }
    */
   @Parameter
-  protected String[] includes = new String[]{"**/*.less"};
+  protected String[] includes = new String[]{"**/*.coffee"};
 
   /**
    * List of files to exclude. Specified as fileset patterns which are relative to the source directory.
-   * <p/>
-   * parameter
    */
   @Parameter
   protected String[] excludes = new String[]{};
@@ -53,97 +46,72 @@ public class CoffeeScriptMojo extends AbstractMojo {
   /**
    * Whether to skip plugin execution.
    * This makes the build more controllable from profiles.
-   * <p/>
-   * parameter default-value="false"
    */
   @Parameter(defaultValue = "false")
   protected boolean skip;
 
   /**
    * The directory for compiled javascript.
-   * <p/>
-   * parameter default-value="${project.build.directory}"
-   * required
    */
   @Parameter(defaultValue = "${project.build.directory}", required = true)
   protected File outputDirectory;
 
   /**
    * When <code>true</code> the COFFEE compiler will compress the javascript.
-   * <p/>
-   * parameter default-value="false"
    */
   @Parameter(defaultValue = "false")
   private boolean compress;
 
   /**
    * When <code>true</code> the plugin will watch for changes in COFFEE files and compile if it detects one.
-   * <p/>
-   * parameter default-value="false"
    */
   @Parameter(defaultValue = "false")
   protected boolean watch;
 
   /**
    * When <code>true</code> the plugin will watch for changes in COFFEE files and compile if it detects one.
-   * <p/>
-   * parameter default-value="1000"
    */
   @Parameter(defaultValue = "1000")
   private int watchInterval;
 
   /**
    * The character encoding the COFFEE compiler will use for writing the javascript.
-   * <p/>
-   * parameter default-value="${project.build.sourceEncoding}"
    */
   @Parameter(defaultValue = "${project.build.sourceEncoding}")
   private String encoding;
 
   /**
    * When <code>true</code> forces the COFFEE compiler to always compile the COFFEE sources. By default COFFEE sources are only compiled when modified (including imports) or the CSS stylesheet does not exists.
-   * <p/>
-   * parameter default-value="false"
    */
   @Parameter(defaultValue = "false")
-  private boolean forcing;
+  private boolean force;
 
   /**
    * The location of the COFFEE JavasSript file.
-   * <p/>
-   * parameter
    */
   @Parameter
   private File coffeeJs;
 
   /**
    * The location of the NodeJS executable.
-   * <p/>
-   * parameter
    */
   @Parameter
   private String nodeExecutable;
 
   /**
    * The format of the output file names.
-   * <p/>
-   * parameter
    */
   @Parameter
   private String outputFileFormat;
 
   /**
    * The compile args.
-   * <p/>
-   * parameter
    */
   @Parameter
   private String[] args;
 
   /**
    * The restart thread time.
-   * <p/>
-   * parameter
    */
   @Parameter(defaultValue = "1000")
   private int restartInterval;
@@ -165,7 +133,7 @@ public class CoffeeScriptMojo extends AbstractMojo {
     coffeeScriptCompiler.setSkip(skip);
     coffeeScriptCompiler.setSourceDirectory(sourceDirectory);
     coffeeScriptCompiler.setOutputDirectory(outputDirectory);
-    coffeeScriptCompiler.setForce(forcing);
+    coffeeScriptCompiler.setForce(force);
     coffeeScriptCompiler.setEncoding(encoding);
     coffeeScriptCompiler.setCompress(compress);
     coffeeScriptCompiler.setArgs(args);
@@ -176,10 +144,14 @@ public class CoffeeScriptMojo extends AbstractMojo {
   }
 
   private void start() {
-    CoffeeExecuteThread run = new CoffeeExecuteThread(coffeeScriptCompiler, restartInterval);
-    CoffeeExecuteListener listen = new CoffeeExecuteListener(run);
-    run.addObserver(listen);
-    new Thread(run).start();
+    if (watch) {
+      CoffeeExecuteThread thread = new CoffeeExecuteThread(coffeeScriptCompiler, restartInterval);
+      CoffeeExecuteListener listen = new CoffeeExecuteListener(thread);
+      thread.addObserver(listen);
+      thread.run();
+    } else {
+      coffeeScriptCompiler.execute();
+    }
   }
 
 }
