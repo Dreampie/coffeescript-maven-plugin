@@ -3,6 +3,7 @@ package cn.dreampie;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.*;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
@@ -19,6 +20,7 @@ import java.io.File;
 // CHECKSTYLE_ON: LineLength
 public class CoffeeScriptMojo extends AbstractMojo {
 
+  private Log log = getLog();
   /**
    * component
    */
@@ -119,7 +121,7 @@ public class CoffeeScriptMojo extends AbstractMojo {
   private CoffeeScriptCompiler coffeeScriptCompiler;
 
   public void execute() throws MojoExecutionException, MojoFailureException {
-    LogKit.setLog(getLog());
+    LogKit.setLog(log);
     initCompiler();
     start();
   }
