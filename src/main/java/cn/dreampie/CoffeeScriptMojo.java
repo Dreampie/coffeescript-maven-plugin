@@ -55,7 +55,7 @@ public class CoffeeScriptMojo extends AbstractMojo {
   /**
    * The directory for compiled javascript.
    */
-  @Parameter(defaultValue = "${project.build.directory}", required = true)
+  @Parameter(defaultValue = "${project.build.directory}/javascript", required = true)
   protected File outputDirectory;
 
   /**
