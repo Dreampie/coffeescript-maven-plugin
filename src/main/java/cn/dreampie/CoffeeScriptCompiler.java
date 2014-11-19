@@ -170,6 +170,7 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
 
     if (coffeeCompiler == null) {
       CoffeeCompiler newCoffeeCompiler = new CoffeeCompiler();
+      newCoffeeCompiler.setCompress(compress);
       newCoffeeCompiler.setEncoding(encoding);
       newCoffeeCompiler.setOptionArgs(args);
       if (coffeeJs != null) {

@@ -56,7 +56,10 @@
     <maven-plugin-api.version>3.2.3</maven-plugin-api.version>
     <maven-plugin-annotations.version>3.3</maven-plugin-annotations.version>
     <coffeescript.version>0.1</coffeescript.version>
-
+    <rhino.version>1.7R4</rhino.version>
+    <plexus-container.version>1.5.5</plexus-container.version>
+    <plexus-build.version>0.0.7</plexus-build.version>
+    <plexus-utils.version>3.0.17</plexus-utils.version>
   </properties>
 
   <dependencies>
@@ -84,6 +87,55 @@
       <groupId>cn.dreampie</groupId>
       <artifactId>coffeescript</artifactId>
       <version>${coffeescript.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mozilla</groupId>
+      <artifactId>rhino</artifactId>
+      <version>${rhino.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-container-default</artifactId>
+      <version>${plexus-container.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>plexus-classworlds</artifactId>
+          <groupId>org.codehaus.plexus</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>xbean-reflect</artifactId>
+          <groupId>org.apache.xbean</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>google-collections</artifactId>
+          <groupId>com.google.collections</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>plexus-utils</artifactId>
+          <groupId>org.codehaus.plexus</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.plexus</groupId>
+      <artifactId>plexus-build-api</artifactId>
+      <version>${plexus-build.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>plexus-utils</artifactId>
+          <groupId>org.codehaus.plexus</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <version>${plexus-utils.version}</version>
     </dependency>
   </dependencies>
 
