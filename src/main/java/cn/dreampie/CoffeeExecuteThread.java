@@ -1,6 +1,5 @@
 package cn.dreampie;
 
-
 import org.apache.maven.plugin.logging.Log;
 
 import java.util.Observable;

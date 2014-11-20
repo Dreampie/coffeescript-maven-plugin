@@ -68,7 +68,7 @@ public abstract class AbstractCoffeeScript {
     return includes;
   }
 
-  public void setIncludes(String[] includes) {
+  public void setIncludes(String... includes) {
     this.includes = includes;
   }
 
@@ -76,7 +76,7 @@ public abstract class AbstractCoffeeScript {
     return excludes;
   }
 
-  public void setExcludes(String[] excludes) {
+  public void setExcludes(String... excludes) {
     this.excludes = excludes;
   }
 

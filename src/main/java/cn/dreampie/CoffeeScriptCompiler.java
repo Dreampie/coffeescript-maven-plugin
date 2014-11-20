@@ -69,7 +69,7 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
   /**
    * Execute the MOJO.
    *
-   * @throws cn.dreampie.CoffeeException if something unexpected occurs.
+   * @throws CoffeeException if something unexpected occurs.
    */
   public void execute() throws CoffeeException {
     log.info("sourceDirectory = " + sourceDirectory);
@@ -130,7 +130,14 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
         file = outputFileFormat.replaceAll(FILE_NAME_FORMAT_PARAMETER_REGEX, file.replace(".coffee", ""));
       }
 
-      File output = new File(outputDirectory, file.replace(".coffee", ".js"));
+      String outFile = null;
+      if (isCompress()) {
+        outFile = file.replace(".coffee", ".min.js");
+      } else {
+        outFile = file.replace(".coffee", ".js");
+      }
+
+      File output = new File(outputDirectory, outFile);
 
       if (!output.getParentFile().exists() && !output.getParentFile().mkdirs()) {
         throw new CoffeeException("Cannot create output directory " + output.getParentFile());
