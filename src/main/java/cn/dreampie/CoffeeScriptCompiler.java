@@ -1,5 +1,6 @@
 package cn.dreampie;
 
+import cn.dreampie.resource.CoffeeSource;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.StringUtils;
 
