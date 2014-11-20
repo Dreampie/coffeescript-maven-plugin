@@ -16,7 +16,8 @@ public class CoffeeScriptMojoTest {
     coffeeScriptCompiler.setSourceDirectory(dir);
     coffeeScriptCompiler.setOutputDirectory(dir);
     coffeeScriptCompiler.setCompress(false);
-    coffeeScriptCompiler.setWatch(true);
+    coffeeScriptCompiler.setWatch(false);
+
     coffeeScriptCompiler.execute();
   }
 }
