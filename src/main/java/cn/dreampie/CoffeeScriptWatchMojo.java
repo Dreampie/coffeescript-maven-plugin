@@ -29,6 +29,10 @@ import java.util.concurrent.TimeUnit;
 // CHECKSTYLE_ON: LineLength
 public class CoffeeScriptWatchMojo extends AbstractCoffeeScriptMojo {
 
+
+  @Parameter(defaultValue = "false")
+  protected boolean flowDelete;
+
   public void execute() throws MojoExecutionException, MojoFailureException {
     LogKit.setLog(log);
     initCompiler();
@@ -37,6 +41,7 @@ public class CoffeeScriptWatchMojo extends AbstractCoffeeScriptMojo {
 
 
   private void start() {
+    coffeeScriptCompiler.setFollowDelete(flowDelete);
     coffeeScriptCompiler.setWatch(true);
     coffeeScriptCompiler.execute();
   }

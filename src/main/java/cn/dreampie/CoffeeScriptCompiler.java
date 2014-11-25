@@ -54,11 +54,6 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
   private File coffeeJs;
 
   /**
-   * The location of the NodeJS executable.
-   */
-  private String nodeExecutable;
-
-  /**
    * The format of the output file names.
    */
   private String outputFileFormat;
@@ -78,7 +73,7 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
    *
    * @throws CoffeeException if something unexpected occurs.
    */
-  public void execute() throws CoffeeException {
+  public void execute() {
     log.info("sourceDirectory = " + sourceDirectory);
     log.info("outputDirectory = " + outputDirectory);
     log.debug("includes = " + Arrays.toString(includes));
@@ -113,7 +108,7 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
     }
   }
 
-  private void compileIfChanged(String[] files, Object coffeeCompiler) throws CoffeeException {
+  private void compileIfChanged(String[] files, Object coffeeCompiler) {
 
     for (String file : files) {
       compileIfChanged(coffeeCompiler, file);
@@ -140,7 +135,8 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
     File output = new File(outputDirectory, outFile);
 
     if (!output.getParentFile().exists() && !output.getParentFile().mkdirs()) {
-      throw new CoffeeException("Cannot create output directory " + output.getParentFile());
+      log.error("Cannot create output directory " + output.getParentFile());
+      return;
     }
 
     try {
@@ -160,9 +156,9 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
       }
     } catch (IOException e) {
 //                buildContext.addMessage(input, 0, 0, "Error compiling coffee source", BuildContext.SEVERITY_ERROR, e);
-      throw new CoffeeException("Error while compiling coffee source: " + file, e);
+      log.error("Error while compiling coffee source: " + file);
     } catch (CoffeeException e) {
-      throw new CoffeeException("Error while compiling coffee source: " + file, e);
+      log.error("Error while compiling coffee source: " + file);
     }
   }
 
@@ -206,7 +202,7 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
       try {
         watchKey = watchService.take();
       } catch (InterruptedException e) {
-        throw new CoffeeException("Error get watch key", e);
+        log.error("Error get watch key", e);
       }
       Path dir = (Path) watchKey.watchable();
 
@@ -220,7 +216,7 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
             try {
               file.register(watchService, watchEvents);
             } catch (IOException e) {
-              throw new CoffeeException("Error register new folder", e);
+              log.error("Error register new folder", e);
             }
             log.debug(String.format("watch %s", file));
           }
@@ -247,7 +243,7 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
                     changed = true;
                   }
                 } catch (IOException e) {
-                  throw new CoffeeException("Error delete file:" + outName, e);
+                  log.error("Error delete file:" + outName, e);
                 }
               }
             } else if (event.kind().name().equals(StandardWatchEventKinds.ENTRY_MODIFY.name()) || event.kind().name().equals(StandardWatchEventKinds.ENTRY_CREATE.name())) {
@@ -330,14 +326,6 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
 
   public void setCoffeeJs(File coffeeJs) {
     this.coffeeJs = coffeeJs;
-  }
-
-  public String getNodeExecutable() {
-    return nodeExecutable;
-  }
-
-  public void setNodeExecutable(String nodeExecutable) {
-    this.nodeExecutable = nodeExecutable;
   }
 
   public String getOutputFileFormat() {

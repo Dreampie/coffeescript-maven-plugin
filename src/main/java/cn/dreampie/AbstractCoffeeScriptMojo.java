@@ -83,12 +83,6 @@ public abstract class AbstractCoffeeScriptMojo extends AbstractMojo {
   protected File coffeeJs;
 
   /**
-   * The location of the NodeJS executable.
-   */
-  @Parameter
-  protected String nodeExecutable;
-
-  /**
    * The format of the output file names.
    */
   @Parameter
@@ -99,9 +93,6 @@ public abstract class AbstractCoffeeScriptMojo extends AbstractMojo {
    */
   @Parameter
   protected String[] args;
-
-  @Parameter(defaultValue = "false")
-  protected boolean flowDelete;
 
   protected CoffeeScriptCompiler coffeeScriptCompiler;
 
@@ -120,8 +111,6 @@ public abstract class AbstractCoffeeScriptMojo extends AbstractMojo {
     coffeeScriptCompiler.setCompress(compress);
     coffeeScriptCompiler.setArgs(args);
 //    coffeeScriptCompiler.setWatch(true);
-    coffeeScriptCompiler.setNodeExecutable(nodeExecutable);
     coffeeScriptCompiler.setOutputFileFormat(outputFileFormat);
-    coffeeScriptCompiler.setFollowDelete(flowDelete);
   }
 }
