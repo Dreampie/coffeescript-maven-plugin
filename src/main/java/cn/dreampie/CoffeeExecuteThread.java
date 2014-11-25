@@ -12,6 +12,10 @@ public class CoffeeExecuteThread extends Observable implements Runnable {
   private int restartInterval = 1000;
   private CoffeeScriptCompiler coffeeScriptCompiler;
 
+  public CoffeeExecuteThread(CoffeeScriptCompiler coffeeScriptCompiler) {
+    this.coffeeScriptCompiler = coffeeScriptCompiler;
+  }
+
   public CoffeeExecuteThread(CoffeeScriptCompiler coffeeScriptCompiler, int restartInterval) {
     this.coffeeScriptCompiler = coffeeScriptCompiler;
     this.restartInterval = restartInterval;
