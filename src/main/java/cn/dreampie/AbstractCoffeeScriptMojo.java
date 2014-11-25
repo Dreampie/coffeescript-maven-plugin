@@ -100,6 +100,28 @@ public abstract class AbstractCoffeeScriptMojo extends AbstractMojo {
   @Parameter
   protected String[] args;
 
+  @Parameter(defaultValue = "false")
+  protected boolean flowDelete;
+
   protected CoffeeScriptCompiler coffeeScriptCompiler;
 
+
+  protected void initCompiler() {
+    coffeeScriptCompiler = new CoffeeScriptCompiler();
+    coffeeScriptCompiler.setBuildContext(buildContext);
+    coffeeScriptCompiler.setIncludes(includes);
+    coffeeScriptCompiler.setExcludes(excludes);
+    coffeeScriptCompiler.setCoffeeJs(coffeeJs);
+    coffeeScriptCompiler.setSkip(skip);
+    coffeeScriptCompiler.setSourceDirectory(sourceDirectory);
+    coffeeScriptCompiler.setOutputDirectory(outputDirectory);
+    coffeeScriptCompiler.setForce(force);
+    coffeeScriptCompiler.setEncoding(encoding);
+    coffeeScriptCompiler.setCompress(compress);
+    coffeeScriptCompiler.setArgs(args);
+//    coffeeScriptCompiler.setWatch(true);
+    coffeeScriptCompiler.setNodeExecutable(nodeExecutable);
+    coffeeScriptCompiler.setOutputFileFormat(outputFileFormat);
+    coffeeScriptCompiler.setFollowDelete(flowDelete);
+  }
 }

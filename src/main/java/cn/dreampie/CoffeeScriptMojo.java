@@ -29,24 +29,6 @@ public class CoffeeScriptMojo extends AbstractCoffeeScriptMojo {
     start();
   }
 
-  private void initCompiler() {
-    coffeeScriptCompiler = new CoffeeScriptCompiler();
-    coffeeScriptCompiler.setBuildContext(buildContext);
-    coffeeScriptCompiler.setIncludes(includes);
-    coffeeScriptCompiler.setExcludes(excludes);
-    coffeeScriptCompiler.setCoffeeJs(coffeeJs);
-    coffeeScriptCompiler.setSkip(skip);
-    coffeeScriptCompiler.setSourceDirectory(sourceDirectory);
-    coffeeScriptCompiler.setOutputDirectory(outputDirectory);
-    coffeeScriptCompiler.setForce(force);
-    coffeeScriptCompiler.setEncoding(encoding);
-    coffeeScriptCompiler.setCompress(compress);
-    coffeeScriptCompiler.setArgs(args);
-    coffeeScriptCompiler.setWatch(false);
-    coffeeScriptCompiler.setNodeExecutable(nodeExecutable);
-    coffeeScriptCompiler.setOutputFileFormat(outputFileFormat);
-  }
-
   private void start() {
     coffeeScriptCompiler.execute();
   }

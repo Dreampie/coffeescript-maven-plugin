@@ -7,6 +7,8 @@ import org.codehaus.plexus.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 
 /**
@@ -67,6 +69,10 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
 
   private long lastErrorModified = 0;
 
+  private boolean followDelete = false;
+
+  private static final WatchEvent.Kind<?>[] watchEvents = {StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE};
+
   /**
    * Execute the MOJO.
    *
@@ -82,96 +88,82 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
     log.debug("skip = " + skip);
 
     if (!skip) {
-      if (watch) {
-        log.info("Watching " + sourceDirectory);
-        if (force) {
-          force = false;
-          log.info("Disabled the 'force' flag in watch mode.");
-        }
-        Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-        while (watch && !Thread.currentThread().isInterrupted()) {
-          executeInternal();
-          try {
-            Thread.sleep(watchInterval);
-          } catch (InterruptedException e) {
-            log.error("interrupted");
-          }
-        }
+      String[] files = getIncludedFiles();
+
+      if (files == null || files.length < 1) {
+        log.info("Nothing to compile - no coffee sources found");
       } else {
-        executeInternal();
+        if (log.isDebugEnabled()) {
+          log.debug("included files = " + Arrays.toString(files));
+        }
+
+        Object coffeeCompiler = initCoffeeCompiler();
+        compileIfChanged(files, coffeeCompiler);
+        if (watch) {
+          log.info("Watching " + sourceDirectory);
+          if (force) {
+            force = false;
+            log.info("Disabled the 'force' flag in watch mode.");
+          }
+          startWatch(files, coffeeCompiler);
+        }
       }
     } else {
       log.info("Skipping plugin execution per configuration");
     }
   }
 
-  private void executeInternal() throws CoffeeException {
-    String[] files = getIncludedFiles();
-
-    if (files == null || files.length < 1) {
-      log.info("Nothing to compile - no coffee sources found");
-    } else {
-      if (log.isDebugEnabled()) {
-        log.debug("included files = " + Arrays.toString(files));
-      }
-
-      Object coffeeCompiler = initCoffeeCompiler();
-      compileIfChanged(files, coffeeCompiler);
-    }
-  }
-
   private void compileIfChanged(String[] files, Object coffeeCompiler) throws CoffeeException {
 
     for (String file : files) {
-      File input = new File(sourceDirectory, file);
-
-      buildContext.removeMessages(input);
-
-      if (outputFileFormat != null) {
-        file = outputFileFormat.replaceAll(FILE_NAME_FORMAT_PARAMETER_REGEX, file.replace(".coffee", ""));
-      }
-
-      String outFile = null;
-      if (isCompress()) {
-        outFile = file.replace(".coffee", ".min.js");
-      } else {
-        outFile = file.replace(".coffee", ".js");
-      }
-
-      File output = new File(outputDirectory, outFile);
-
-      if (!output.getParentFile().exists() && !output.getParentFile().mkdirs()) {
-        throw new CoffeeException("Cannot create output directory " + output.getParentFile());
-      }
-
-      try {
-        CoffeeSource coffeeSource = new CoffeeSource(input);
-        long coffeeLastModified = coffeeSource.getLastModified();
-        if (!output.exists() || (force || output.lastModified() < coffeeLastModified) && lastErrorModified < coffeeLastModified) {
-          lastErrorModified = coffeeLastModified;
-          long compilationStarted = System.currentTimeMillis();
-          log.info("Compiling coffee source: " + file);
-          if (coffeeCompiler instanceof CoffeeCompiler) {
-            ((CoffeeCompiler) coffeeCompiler).compile(coffeeSource, output, force);
-          }
-          buildContext.refresh(output);
-          log.info("Finished compilation to " + outputDirectory + " in " + (System.currentTimeMillis() - compilationStarted) + " ms");
-        } else if (!watch) {
-          log.info("Bypassing coffee source: " + file + " (not modified)");
-        }
-      } catch (IOException e) {
-//                buildContext.addMessage(input, 0, 0, "Error compiling coffee source", BuildContext.SEVERITY_ERROR, e);
-        throw new CoffeeException("Error while compiling coffee source: " + file, e);
-      } catch (CoffeeException e) {
-        String message = e.getMessage();
-        if (StringUtils.isEmpty(message)) {
-          message = "Error compiling coffee source";
-        }
-//                buildContext.addMessage(input, 0, 0, "Error compiling coffee source", BuildContext.SEVERITY_ERROR, e);
-        throw new CoffeeException("Error while compiling coffee source: " + file, e);
-      }
+      compileIfChanged(coffeeCompiler, file);
     }
 
+  }
+
+  private void compileIfChanged(Object coffeeCompiler, String file) {
+    File input = new File(sourceDirectory, file);
+
+    buildContext.removeMessages(input);
+
+    if (outputFileFormat != null) {
+      file = outputFileFormat.replaceAll(FILE_NAME_FORMAT_PARAMETER_REGEX, file.replace(".coffee", ""));
+    }
+
+    String outFile = null;
+    if (isCompress()) {
+      outFile = file.replace(".coffee", ".min.js");
+    } else {
+      outFile = file.replace(".coffee", ".js");
+    }
+
+    File output = new File(outputDirectory, outFile);
+
+    if (!output.getParentFile().exists() && !output.getParentFile().mkdirs()) {
+      throw new CoffeeException("Cannot create output directory " + output.getParentFile());
+    }
+
+    try {
+      CoffeeSource coffeeSource = new CoffeeSource(input);
+      long coffeeLastModified = coffeeSource.getLastModified();
+      if (!output.exists() || (force || output.lastModified() < coffeeLastModified) && lastErrorModified < coffeeLastModified) {
+        lastErrorModified = coffeeLastModified;
+        long compilationStarted = System.currentTimeMillis();
+        log.info("Compiling coffee source: " + file);
+        if (coffeeCompiler instanceof CoffeeCompiler) {
+          ((CoffeeCompiler) coffeeCompiler).compile(coffeeSource, output, force);
+        }
+        buildContext.refresh(output);
+        log.info("Finished compilation to " + outputDirectory + " in " + (System.currentTimeMillis() - compilationStarted) + " ms");
+      } else if (!watch) {
+        log.info("Bypassing coffee source: " + file + " (not modified)");
+      }
+    } catch (IOException e) {
+//                buildContext.addMessage(input, 0, 0, "Error compiling coffee source", BuildContext.SEVERITY_ERROR, e);
+      throw new CoffeeException("Error while compiling coffee source: " + file, e);
+    } catch (CoffeeException e) {
+      throw new CoffeeException("Error while compiling coffee source: " + file, e);
+    }
   }
 
   private Object initCoffeeCompiler() throws CoffeeException {
@@ -192,6 +184,96 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
     }
     return coffeeCompiler;
 
+  }
+
+  private void startWatch(String[] files, Object compiler) {
+    Path sourcePath = sourceDirectory.toPath();
+    Path outPath = outputDirectory.toPath();
+    WatchService watchService = null;
+    try {
+      watchService = initWatch(sourcePath);
+    } catch (IOException e) {
+      throw new CoffeeException("Error watch sourceDirectory: " + sourceDirectory.getAbsolutePath(), e);
+    }
+    boolean changed = true;
+    while (true) {
+      if (changed) {
+        log.info("Waiting for changes...");
+        changed = false;
+      }
+
+      WatchKey watchKey = null;
+      try {
+        watchKey = watchService.take();
+      } catch (InterruptedException e) {
+        throw new CoffeeException("Error get watch key", e);
+      }
+      Path dir = (Path) watchKey.watchable();
+
+      for (WatchEvent<?> event : watchKey.pollEvents()) {
+        Path file = dir.resolve((Path) event.context());
+        log.debug(String.format("watched %s - %s", event.kind().name(), file));
+
+        if (Files.isDirectory(file)) {
+          if (event.kind().name().equals(StandardWatchEventKinds.ENTRY_CREATE.name())) {
+            // watch created folder.
+            try {
+              file.register(watchService, watchEvents);
+            } catch (IOException e) {
+              throw new CoffeeException("Error register new folder", e);
+            }
+            log.debug(String.format("watch %s", file));
+          }
+          continue;
+        }
+
+        String fileName = sourcePath.relativize(file).toString();
+
+        String outName = "";
+
+        for (String name : files) {
+          if (name != null && name.equals(fileName)) {
+            if (event.kind().name().equals(StandardWatchEventKinds.ENTRY_DELETE.name())) {
+              if (followDelete) {
+                if (isCompress()) {
+                  outName = fileName.replace(".coffee", ".min.js");
+                } else {
+                  outName = fileName.replace(".coffee", ".js");
+                }
+
+                try {
+                  if (Files.deleteIfExists(outPath.resolve(outName))) {
+                    log.info(String.format("deleted %s with %s", outName, name));
+                    changed = true;
+                  }
+                } catch (IOException e) {
+                  throw new CoffeeException("Error delete file:" + outName, e);
+                }
+              }
+            } else if (event.kind().name().equals(StandardWatchEventKinds.ENTRY_MODIFY.name()) || event.kind().name().equals(StandardWatchEventKinds.ENTRY_CREATE.name())) {
+              compileIfChanged(compiler, fileName);
+              changed = true;
+            }
+          }
+        }
+      }
+      watchKey.reset();
+    }
+
+  }
+
+  private WatchService initWatch(Path sourceDirectory) throws IOException {
+    final WatchService watchService = sourceDirectory.getFileSystem().newWatchService();
+
+    Files.walkFileTree(sourceDirectory, new SimpleFileVisitor<Path>() {
+      @Override
+      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        dir.register(watchService, watchEvents);
+        log.debug(String.format("watch %s", dir));
+        return FileVisitResult.CONTINUE;
+      }
+    });
+    return watchService;
   }
 
   public File getOutputDirectory() {
@@ -276,5 +358,13 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
 
   public void setLastErrorModified(long lastErrorModified) {
     this.lastErrorModified = lastErrorModified;
+  }
+
+  public boolean isFollowDelete() {
+    return followDelete;
+  }
+
+  public void setFollowDelete(boolean followDelete) {
+    this.followDelete = followDelete;
   }
 }
