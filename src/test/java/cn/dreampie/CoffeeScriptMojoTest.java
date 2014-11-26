@@ -1,15 +1,10 @@
 package cn.dreampie;
 
 import cn.dreampie.CoffeeScriptCompiler;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
-import org.apache.commons.io.monitor.FileAlterationMonitor;
-import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.junit.Test;
 import org.sonatype.plexus.build.incremental.ThreadBuildContext;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 public class CoffeeScriptMojoTest {
 
@@ -20,8 +15,9 @@ public class CoffeeScriptMojoTest {
     File dir = new File(getClass().getResource("/").getPath());
     coffeeScriptCompiler.setSourceDirectory(dir);
     coffeeScriptCompiler.setOutputDirectory(dir);
-    coffeeScriptCompiler.setCompress(true);
-    coffeeScriptCompiler.setWatch(false);
+    coffeeScriptCompiler.setCompress(false);
+    coffeeScriptCompiler.setWatch(true);
+
     coffeeScriptCompiler.execute();
   }
 }

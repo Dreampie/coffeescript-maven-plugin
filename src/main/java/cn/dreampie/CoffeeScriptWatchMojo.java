@@ -1,8 +1,5 @@
 package cn.dreampie;
 
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.monitor.FileAlterationMonitor;
-import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -16,7 +13,6 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ice on 14-11-17.
@@ -29,9 +25,11 @@ import java.util.concurrent.TimeUnit;
 // CHECKSTYLE_ON: LineLength
 public class CoffeeScriptWatchMojo extends AbstractCoffeeScriptMojo {
 
-
+  /**
+   * When <code>true</code> the plugin will watch for changes in coffee files and compile if it detects one.
+   */
   @Parameter(defaultValue = "false")
-  protected boolean flowDelete;
+  private boolean watchInThread;
 
   public void execute() throws MojoExecutionException, MojoFailureException {
     LogKit.setLog(log);
@@ -41,9 +39,15 @@ public class CoffeeScriptWatchMojo extends AbstractCoffeeScriptMojo {
 
 
   private void start() {
-    coffeeScriptCompiler.setFollowDelete(flowDelete);
     coffeeScriptCompiler.setWatch(true);
-    coffeeScriptCompiler.execute();
+    if (watchInThread) {
+      CoffeeExecuteThread thread = new CoffeeExecuteThread(coffeeScriptCompiler);
+      CoffeeExecuteListener listen = new CoffeeExecuteListener(thread);
+      thread.addObserver(listen);
+      new Thread(thread).start();
+//      Executors.newSingleThreadExecutor().execute(thread);
+    } else
+      coffeeScriptCompiler.execute();
   }
 
 }
