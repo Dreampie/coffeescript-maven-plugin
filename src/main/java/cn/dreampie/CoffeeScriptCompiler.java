@@ -229,14 +229,19 @@ public class CoffeeScriptCompiler extends AbstractCoffeeScript {
 
         for (String name : files) {
           if (name != null && name.equals(fileName)) {
+
+            if (isCompress()) {
+              outName = fileName.replace(".coffee", ".min.js");
+            } else {
+              outName = fileName.replace(".coffee", ".js");
+            }
+
+            if (Files.exists(sourcePath.resolve(fileName)) && Files.notExists(outPath.resolve(outName))) {
+              compileIfChanged(compiler, fileName);
+            }
+
             if (event.kind().name().equals(StandardWatchEventKinds.ENTRY_DELETE.name())) {
               if (followDelete) {
-                if (isCompress()) {
-                  outName = fileName.replace(".coffee", ".min.js");
-                } else {
-                  outName = fileName.replace(".coffee", ".js");
-                }
-
                 try {
                   if (Files.deleteIfExists(outPath.resolve(outName))) {
                     log.info(String.format("deleted %s with %s", outName, name));
